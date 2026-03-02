@@ -19,7 +19,6 @@ public class RecipeScanService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RecipeScanService.class);
 	private final List<TextExtractor> textExtractors;
 	private final RecipeParser recipeParser;
-	//TODO use this in the submit endpoint when implemented
 	private final FoodHistoryApiClient foodHistoryApiClient;
 
 	public RecipeScanService(
