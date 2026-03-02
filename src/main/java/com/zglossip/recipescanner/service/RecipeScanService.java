@@ -2,10 +2,10 @@ package com.zglossip.recipescanner.service;
 
 import com.zglossip.recipescanner.api.RecipeScanResponse;
 import com.zglossip.recipescanner.client.FoodHistoryApiClient;
-import com.zglossip.recipescanner.domain.Recipe;
 import com.zglossip.recipescanner.extract.TextExtractor;
 import com.zglossip.recipescanner.parse.RecipeParser;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,6 +18,7 @@ public class RecipeScanService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RecipeScanService.class);
 	private final List<TextExtractor> textExtractors;
 	private final RecipeParser recipeParser;
+	//TODO use this in the submit endpoint when implemented
 	private final FoodHistoryApiClient foodHistoryApiClient;
 
 	public RecipeScanService(
@@ -62,19 +63,6 @@ public class RecipeScanService {
 					"No text could be extracted from the file."
 			);
 		}
-		Recipe recipe = recipeParser.parse(text);
-		if (recipe != null) {
-			int tagCount = recipe.tags() == null ? 0 : recipe.tags().size();
-			int cuisineCount = recipe.cuisineTypes() == null ? 0 : recipe.cuisineTypes().size();
-			int courseCount = recipe.courseTypes() == null ? 0 : recipe.courseTypes().size();
-			LOGGER.info("Parsed recipe name={} tags={} cuisines={} courses={}",
-					recipe.name(),
-					tagCount,
-					cuisineCount,
-					courseCount);
-		}
-		foodHistoryApiClient.send(recipe);
-		LOGGER.info("Submitted recipe to food-history-api");
-		return new RecipeScanResponse("submitted", "Recipe sent to food-history-api.");
+		return new RecipeScanResponse(recipeParser.parse(text), text, "Recipe scanned successfully.");
 	}
 }
