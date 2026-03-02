@@ -1,5 +1,6 @@
 package com.zglossip.recipescanner.api;
 
+import com.zglossip.recipescanner.domain.Recipe;
 import com.zglossip.recipescanner.service.RecipeScanService;
 import com.zglossip.recipescanner.validation.UploadedFileValidator;
 import org.springframework.http.MediaType;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/recipes")
@@ -29,5 +32,10 @@ public class RecipeScanController {
 		uploadedFileValidator.validateForScan(file);
 		RecipeScanResponse response = recipeScanService.scan(file);
 		return ResponseEntity.ok(response);
+	}
+
+	@PostMapping(path = "/submit", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Boolean> submit(@RequestPart("submission") ArrayList<Recipe> submission) {
+		return ResponseEntity.ok(recipeScanService.submit(submission));
 	}
 }
