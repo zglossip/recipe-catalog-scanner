@@ -2,7 +2,7 @@ package com.zglossip.recipescanner.service;
 
 import com.zglossip.recipescanner.api.RecipeScanResponse;
 import com.zglossip.recipescanner.client.FoodHistoryApiClient;
-import com.zglossip.recipescanner.domain.Recipe;
+import com.zglossip.recipescanner.domain.ScannedRecipe;
 import com.zglossip.recipescanner.extract.TextExtractor;
 import com.zglossip.recipescanner.parse.RecipeParser;
 import java.util.List;
@@ -66,7 +66,7 @@ public class RecipeScanService {
 		return new RecipeScanResponse(recipeParser.parse(text), text, "Recipe scanned successfully.");
 	}
 
-	public Boolean submit(List<Recipe> recipes) {
+	public Boolean submit(List<ScannedRecipe> recipes) {
 		return recipes.stream()
 				.map(foodHistoryApiClient::send)
 				.reduce(Boolean.TRUE, (b1, b2) -> b1 && b2);
