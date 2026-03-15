@@ -31,7 +31,7 @@ public class RecipeScanService {
 		this.foodHistoryApiClient = foodHistoryApiClient;
 	}
 
-	public RecipeScanResponse scan(MultipartFile file) {
+	public RecipeScanResponse scan(MultipartFile file, List<String> excludedNames) {
 		LOGGER.info("Scanning recipe file name={} contentType={} sizeBytes={}",
 				file.getOriginalFilename(),
 				file.getContentType(),
@@ -63,7 +63,7 @@ public class RecipeScanService {
 					"No text could be extracted from the file."
 			);
 		}
-		return new RecipeScanResponse(recipeParser.parse(text), text, "Recipe scanned successfully.");
+		return new RecipeScanResponse(recipeParser.parse(text, excludedNames), text, "Recipe scanned successfully.");
 	}
 
 	public Boolean submit(List<ScannedRecipe> recipes) {
