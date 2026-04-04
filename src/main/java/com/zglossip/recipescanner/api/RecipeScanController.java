@@ -29,13 +29,9 @@ public class RecipeScanController {
 	}
 
 	@PostMapping(path = "/scan", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<RecipeScanResponse> scan(
-			@RequestPart("file") MultipartFile file,
-			@RequestPart(value = "excludedNames", required = false) List<String> excludedNames
-	) {
+	public ResponseEntity<RecipeScanResponse> scan(@RequestPart("file") MultipartFile file) {
 		uploadedFileValidator.validateForScan(file);
-		RecipeScanResponse response = recipeScanService.scan(file, excludedNames != null ? excludedNames : List.of());
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(recipeScanService.scan(file));
 	}
 
 	@PostMapping(path = "/submit", consumes = MediaType.APPLICATION_JSON_VALUE)

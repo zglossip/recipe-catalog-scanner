@@ -1,20 +1,23 @@
 package com.zglossip.recipescanner.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.genai.Client;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestClient;
 
 @Configuration
 public class AppConfig {
 
 	@Bean
-	public Client geminiClient() {
-		return new Client();
-	}
-
-	@Bean
 	public ObjectMapper objectMapper() {
 		return new ObjectMapper();
 	}
+
+	@Bean
+	public RestClient restClient(@Value("${ollama.base-url}") String baseUrl) {
+		return RestClient.builder().baseUrl(baseUrl).build();
+	}
+
+
 }

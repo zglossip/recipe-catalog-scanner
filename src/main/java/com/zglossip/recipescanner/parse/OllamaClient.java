@@ -11,8 +11,6 @@ import java.util.List;
 @Component
 public class OllamaClient {
 
-	private static final String NAMES_SYSTEM = "You are a recipe identification assistant. List the names of all recipes found in the OCR-scanned text.";
-
 	private static final String RECIPE_SYSTEM = """
 			You are a recipe extraction assistant. Extract the recipe from OCR-scanned text and map it to the following structure:
 
@@ -27,7 +25,6 @@ public class OllamaClient {
 			- instructions: an ordered list of steps, each as a plain string.
 			""";
 
-	private static final NamesResultSchema NAMES_SCHEMA = new NamesResultSchema();
 	private static final RecipesResultSchema RECIPE_SCHEMA = new RecipesResultSchema();
 
 	private final RestClient restClient;
@@ -40,24 +37,14 @@ public class OllamaClient {
 		this.objectMapper = objectMapper;
 	}
 
-	public NamesResult generateNames(String text) throws Exception {
-		String json = generate(NAMES_SYSTEM, "List all recipe names found in this OCR text:\n\n" + text, NAMES_SCHEMA);
-		return objectMapper.readValue(json, NamesResult.class);
-	}
-
 	public ParsedRecipesResult generateRecipes(String text) throws Exception {
-		String json = generate(RECIPE_SYSTEM, "Extract the recipe from this OCR text:\n\n" + text, RECIPE_SCHEMA);
-		return objectMapper.readValue(json, ParsedRecipesResult.class);
-	}
-
-	private String generate(String systemInstruction, String prompt, Object schema) {
 		OllamaRequest request = new OllamaRequest(
 				model,
 				List.of(
-						new OllamaMessage("system", systemInstruction),
-						new OllamaMessage("user", prompt)
+						new OllamaMessage("system", RECIPE_SYSTEM),
+						new OllamaMessage("user", "Extract the recipe from this OCR text:\n\n" + text)
 				),
-				schema,
+				RECIPE_SCHEMA,
 				false
 		);
 		OllamaResponse response = restClient.post()
@@ -69,7 +56,7 @@ public class OllamaClient {
 		if (response == null || response.message() == null) {
 			throw new IllegalStateException("Received null response from Ollama");
 		}
-		return response.message().content();
+		return objectMapper.readValue(response.message().content(), ParsedRecipesResult.class);
 	}
 
 	private record StringSchema(String type) {
@@ -108,14 +95,6 @@ public class OllamaClient {
 		RecipeArraySchema() { this("array", new RecipeObjectSchema()); }
 	}
 
-	private record NamesResultProperties(StringArraySchema names) {
-		NamesResultProperties() { this(new StringArraySchema()); }
-	}
-
-	private record NamesResultSchema(String type, NamesResultProperties properties, List<String> required) {
-		NamesResultSchema() { this("object", new NamesResultProperties(), List.of("names")); }
-	}
-
 	private record RecipesResultProperties(RecipeArraySchema recipes) {
 		RecipesResultProperties() { this(new RecipeArraySchema()); }
 	}
@@ -123,4 +102,6 @@ public class OllamaClient {
 	private record RecipesResultSchema(String type, RecipesResultProperties properties, List<String> required) {
 		RecipesResultSchema() { this("object", new RecipesResultProperties(), List.of("recipes")); }
 	}
+
+
 }

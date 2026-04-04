@@ -5,7 +5,6 @@ import com.zglossip.recipescanner.client.FoodHistoryApiClient;
 import com.zglossip.recipescanner.domain.ScannedRecipe;
 import com.zglossip.recipescanner.extract.TextExtractor;
 import com.zglossip.recipescanner.parse.RecipeParser;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
 
 @Service
 public class RecipeScanService {
@@ -31,7 +32,7 @@ public class RecipeScanService {
 		this.foodHistoryApiClient = foodHistoryApiClient;
 	}
 
-	public RecipeScanResponse scan(MultipartFile file, List<String> excludedNames) {
+	public RecipeScanResponse scan(MultipartFile file) {
 		LOGGER.info("Scanning recipe file name={} contentType={} sizeBytes={}",
 				file.getOriginalFilename(),
 				file.getContentType(),
@@ -63,7 +64,7 @@ public class RecipeScanService {
 					"No text could be extracted from the file."
 			);
 		}
-		return new RecipeScanResponse(recipeParser.parse(text, excludedNames), text, "Recipe scanned successfully.");
+		return new RecipeScanResponse(recipeParser.parse(text), text, "Recipe scanned successfully.");
 	}
 
 	public Boolean submit(List<ScannedRecipe> recipes) {
