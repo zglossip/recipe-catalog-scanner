@@ -13,28 +13,46 @@ Reads files containing recipes such as PDFs and images, and sends it to the reci
 
 ## Configuration
 
-Environment-specific configuration lives in `src/main/resources/application-local.yaml`, which is gitignored. Create this file before running the application:
+The following properties must be supplied at runtime — they are not included in the packaged jar.
 
-```yaml
-recipe-catalog-api:
-  base-url: "http://<recipe-catalog-api-host>:5000"
-
-ollama:
-  base-url: "http://<ollama-host>:11434"
-  model: "llama3.1"
-```
-
-Then run with the `local` profile active:
-
-```bash
-./gradlew bootRun --args='--spring.profiles.active=local'
-```
-
-Or set it in your IDE run configuration as a VM/program argument.
+| Property | Description |
+|---|---|
+| `recipe-catalog-api.base-url` | Base URL of the recipe-catalog-api |
+| `ollama.base-url` | Base URL of the Ollama instance |
+| `ollama.model` | Ollama model to use for recipe extraction |
 
 `recipe-catalog-api` must be running and accessible. See that project for setup instructions.
 
 `ocr.language` in `application.yaml` must match a Tesseract language code installed on your machine. Run `tesseract --list-langs` to see available languages.
+
+### Running locally (development)
+
+Create `src/main/resources/application-dev.yaml` (gitignored):
+
+```yaml
+recipe-catalog-api:
+  base-url: "http://<host>:5000"
+
+ollama:
+  base-url: "http://<host>:11434"
+  model: "<model>"
+```
+
+Then run with the `dev` profile:
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=dev'
+```
+
+Or set **Active profiles** to `dev` in your IDE run configuration.
+
+### Deploying
+
+Place an `application.yaml` alongside the jar with the required properties, or supply them as environment variables:
+
+```bash
+RECIPE_CATALOG_API_BASE_URL=http://... OLLAMA_BASE_URL=http://... OLLAMA_MODEL=... java -jar recipe-scanner.jar
+```
 
 ## Upload limits
 
