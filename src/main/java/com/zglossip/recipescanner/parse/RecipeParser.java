@@ -22,27 +22,22 @@ public class RecipeParser {
 
 	public List<ScannedRecipe> parse(String text) {
 		LOGGER.info("Parsing OCR text ({} chars)", text.length());
-		try {
-			ParsedRecipesResult result = ollamaClient.generateRecipes(text);
-			return result.recipes().stream()
-					.map(p -> new ScannedRecipe(
-							new Recipe(
-									p.name(),
-									List.of(),
-									List.of(),
-									List.of(),
-									p.servingAmount(),
-									p.servingName(),
-									"",
-									Instant.now()
-							),
-							p.ingredients() != null ? p.ingredients() : List.of(),
-							p.instructions() != null ? p.instructions() : List.of()
-					))
-					.toList();
-		} catch (Exception e) {
-			LOGGER.warn("Failed to parse recipes", e);
-			return List.of();
-		}
+		ParsedRecipesResult result = ollamaClient.generateRecipes(text);
+		return result.recipes().stream()
+				.map(p -> new ScannedRecipe(
+						new Recipe(
+								p.name(),
+								List.of(),
+								List.of(),
+								List.of(),
+								p.servingAmount(),
+								p.servingName(),
+								"",
+								Instant.now()
+						),
+						p.ingredients() != null ? p.ingredients() : List.of(),
+						p.instructions() != null ? p.instructions() : List.of()
+				))
+				.toList();
 	}
 }

@@ -1,5 +1,6 @@
 package com.zglossip.recipescanner.parse;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -37,7 +38,7 @@ public class OllamaClient {
 		this.objectMapper = objectMapper;
 	}
 
-	public ParsedRecipesResult generateRecipes(String text) throws Exception {
+	public ParsedRecipesResult generateRecipes(String text) {
 		OllamaRequest request = new OllamaRequest(
 				model,
 				List.of(
@@ -56,7 +57,11 @@ public class OllamaClient {
 		if (response == null || response.message() == null) {
 			throw new IllegalStateException("Received null response from Ollama");
 		}
-		return objectMapper.readValue(response.message().content(), ParsedRecipesResult.class);
+		try {
+			return objectMapper.readValue(response.message().content(), ParsedRecipesResult.class);
+		} catch (JsonProcessingException e) {
+			throw new IllegalStateException("Failed to parse Ollama response as JSON", e);
+		}
 	}
 
 	private record StringSchema(String type) {
