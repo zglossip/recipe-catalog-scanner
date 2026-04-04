@@ -2,7 +2,7 @@ package com.zglossip.recipescanner.parse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
+import com.zglossip.recipescanner.config.OllamaProperties;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -32,9 +32,9 @@ public class OllamaClient {
 	private final String model;
 	private final ObjectMapper objectMapper;
 
-	public OllamaClient(RestClient restClient, @Value("${ollama.model}") String model, ObjectMapper objectMapper) {
+	public OllamaClient(RestClient restClient, OllamaProperties ollamaProperties, ObjectMapper objectMapper) {
 		this.restClient = restClient;
-		this.model = model;
+		this.model = ollamaProperties.model();
 		this.objectMapper = objectMapper;
 	}
 
