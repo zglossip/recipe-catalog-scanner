@@ -1,7 +1,7 @@
 package com.zglossip.recipescanner.service;
 
 import com.zglossip.recipescanner.api.RecipeScanResponse;
-import com.zglossip.recipescanner.client.FoodHistoryApiClient;
+import com.zglossip.recipescanner.client.RecipeCatalogApiClient;
 import com.zglossip.recipescanner.domain.ScannedRecipe;
 import com.zglossip.recipescanner.extract.TextExtractor;
 import com.zglossip.recipescanner.parse.RecipeParser;
@@ -20,12 +20,12 @@ public class RecipeScanService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RecipeScanService.class);
 	private final List<TextExtractor> textExtractors;
 	private final RecipeParser recipeParser;
-	private final FoodHistoryApiClient foodHistoryApiClient;
+	private final RecipeCatalogApiClient foodHistoryApiClient;
 
 	public RecipeScanService(
 			List<TextExtractor> textExtractors,
 			RecipeParser recipeParser,
-			FoodHistoryApiClient foodHistoryApiClient
+			RecipeCatalogApiClient foodHistoryApiClient
 	) {
 		this.textExtractors = textExtractors;
 		this.recipeParser = recipeParser;

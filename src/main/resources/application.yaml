@@ -6,12 +6,5 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
 
-food-history-api:
-  base-url: "http://localhost:5000"
-
 ocr:
   language: "eng"
-
-ollama:
-  base-url: "http://localhost:11434"
-  model: "llama3.2"

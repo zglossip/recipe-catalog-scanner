@@ -6,7 +6,7 @@ import com.zglossip.recipescanner.domain.ScannedRecipe;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FoodHistoryApiClient {
+public class RecipeCatalogApiClient {
 
 	public Boolean send(ScannedRecipe scannedRecipe) {
 		// TODO: POST /recipe → deserialize response to get assigned id

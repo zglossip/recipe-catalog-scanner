@@ -1,5 +1,5 @@
 # recipe-scanner
-Reads files containing recipes such as PDFs and images, and sends it to the food-history-api
+Reads files containing recipes such as PDFs and images, and sends it to the recipe-catalog-api
 
 ## Requirements
 
@@ -9,27 +9,32 @@ Reads files containing recipes such as PDFs and images, and sends it to the food
   - Ubuntu/Debian: `sudo apt install tesseract-ocr`
   - Windows: [installer](https://github.com/UB-Mannheim/tesseract/wiki)
   - Language data must be installed for any language you intend to scan (English is `tesseract-ocr-eng` on Debian-based systems)
-- **Google API key** — set as an environment variable:
-  ```bash
-  export GOOGLE_API_KEY=...
-  ```
-  Obtain a free-tier key at [aistudio.google.com](https://aistudio.google.com)
+- **Ollama** running and accessible with a model loaded
 
 ## Configuration
 
-Set the downstream API base URL and OCR language in `src/main/resources/application.yaml`:
+Environment-specific configuration lives in `src/main/resources/application-local.yaml`, which is gitignored. Create this file before running the application:
 
 ```yaml
-food-history-api:
-  base-url: "<food-history-api base URL>"
+recipe-catalog-api:
+  base-url: "http://<recipe-catalog-api-host>:5000"
 
-ocr:
-  language: "eng"
+ollama:
+  base-url: "http://<ollama-host>:11434"
+  model: "llama3.1"
 ```
 
-`food-history-api` must be running and accessible. See that project for setup instructions.
+Then run with the `local` profile active:
 
-`ocr.language` must match a Tesseract language code installed on your machine. Run `tesseract --list-langs` to see available languages.
+```bash
+./gradlew bootRun --args='--spring.profiles.active=local'
+```
+
+Or set it in your IDE run configuration as a VM/program argument.
+
+`recipe-catalog-api` must be running and accessible. See that project for setup instructions.
+
+`ocr.language` in `application.yaml` must match a Tesseract language code installed on your machine. Run `tesseract --list-langs` to see available languages.
 
 ## Upload limits
 

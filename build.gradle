@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.zglossip'
 version = '0.2-SNAPSHOT'
-description = 'Reads files containing recipes such as PDFs and images, and sends it to the food-history-api'
+description = 'Reads files containing recipes such as PDFs and images, and sends it to the recipe-catalog-api'
 
 java {
 	toolchain {
