@@ -53,7 +53,7 @@ public class PdfOcrTextExtractor implements TextExtractor {
 				StringBuilder extractedText = new StringBuilder();
 				for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
 					BufferedImage page = renderer.renderImageWithDPI(pageIndex, 300, ImageType.RGB);
-					extractedText.append(tesseract.doOCR(new PreprocessedImage(page)));
+					extractedText.append(tesseract.doOCR(ImagePreprocessor.toBlackAndWhite(page)));
 					if (pageIndex < pageCount - 1) {
 						extractedText.append("\n\n");
 					}

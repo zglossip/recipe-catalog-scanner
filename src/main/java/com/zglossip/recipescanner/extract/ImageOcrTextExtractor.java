@@ -31,7 +31,7 @@ public class ImageOcrTextExtractor implements TextExtractor {
 			if (image == null) {
 				return "";
 			}
-			return tesseractFactory.create().doOCR(new PreprocessedImage(image));
+			return tesseractFactory.create().doOCR(ImagePreprocessor.toBlackAndWhite(image));
 		} catch (IOException e) {
 			throw new UncheckedIOException("Failed to read image", e);
 		} catch (TesseractException e) {

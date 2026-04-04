@@ -4,18 +4,17 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 
-class PreprocessedImage extends BufferedImage {
+class ImagePreprocessor {
+	private ImagePreprocessor() {}
 
-	PreprocessedImage(BufferedImage source) {
-		super(source.getWidth(), source.getHeight(), TYPE_BYTE_GRAY);
+	static BufferedImage toBlackAndWhite(BufferedImage source) {
 		BufferedImage gray = toGrayscale(source);
 		BufferedImage contrasted = enhanceContrast(gray);
-		BufferedImage binary = binarize(contrasted);
-		setData(binary.getRaster());
+		return binarize(contrasted);
 	}
 
 	private static BufferedImage toGrayscale(BufferedImage image) {
-		BufferedImage gray = new BufferedImage(image.getWidth(), image.getHeight(), TYPE_BYTE_GRAY);
+		BufferedImage gray = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 		Graphics2D g = gray.createGraphics();
 		g.drawImage(image, 0, 0, null);
 		g.dispose();
@@ -58,7 +57,7 @@ class PreprocessedImage extends BufferedImage {
 			}
 		}
 
-		BufferedImage binary = new BufferedImage(width, height, TYPE_BYTE_GRAY);
+		BufferedImage binary = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				binary.getRaster().setSample(x, y, 0, image.getRaster().getSample(x, y, 0) > threshold ? 255 : 0);
