@@ -6,5 +6,5 @@ import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties(prefix = "ollama")
 @Validated
-public record OllamaProperties(@NotBlank String baseUrl, @NotBlank String model) {
+public record OllamaProperties(@NotBlank String baseUrl, @NotBlank String model, int numCtx) {
 }

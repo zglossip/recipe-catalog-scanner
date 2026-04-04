@@ -8,12 +8,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class OllamaClient {
 
 	private static final String RECIPE_SYSTEM = """
-			You are a recipe extraction assistant. Extract the recipe from OCR-scanned text and map it to the following structure:
+			You are a recipe extraction assistant. Extract all recipes from OCR-scanned text and map each one to the following structure:
 
 			- name: the full name of the recipe.
 			- servingAmount: the number of servings as an integer (e.g. 4).
@@ -30,11 +31,13 @@ public class OllamaClient {
 
 	private final RestClient restClient;
 	private final String model;
+	private final int numCtx;
 	private final ObjectMapper objectMapper;
 
 	public OllamaClient(RestClient restClient, OllamaProperties ollamaProperties, ObjectMapper objectMapper) {
 		this.restClient = restClient;
 		this.model = ollamaProperties.model();
+		this.numCtx = ollamaProperties.numCtx();
 		this.objectMapper = objectMapper;
 	}
 
@@ -43,10 +46,11 @@ public class OllamaClient {
 				model,
 				List.of(
 						new OllamaMessage("system", RECIPE_SYSTEM),
-						new OllamaMessage("user", "Extract the recipe from this OCR text:\n\n" + text)
+						new OllamaMessage("user", "Extract all recipes from this OCR text:\n\n" + text)
 				),
 				RECIPE_SCHEMA,
-				false
+				false,
+				Map.of("num_ctx", numCtx)
 		);
 		OllamaResponse response = restClient.post()
 				.uri("/api/chat")
