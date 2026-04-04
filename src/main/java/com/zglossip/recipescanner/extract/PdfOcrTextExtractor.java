@@ -1,5 +1,6 @@
 package com.zglossip.recipescanner.extract;
 
+import com.zglossip.recipescanner.util.ContentTypes;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import org.apache.pdfbox.Loader;
@@ -16,7 +17,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Locale;
 
 @Component
 public class PdfOcrTextExtractor implements TextExtractor {
@@ -28,7 +28,7 @@ public class PdfOcrTextExtractor implements TextExtractor {
 
 	@Override
 	public boolean supports(MultipartFile file) {
-		return "application/pdf".equals(normalizeContentType(file == null ? null : file.getContentType()));
+		return "application/pdf".equals(ContentTypes.normalize(file == null ? null : file.getContentType()));
 	}
 
 	@Override
@@ -76,15 +76,4 @@ public class PdfOcrTextExtractor implements TextExtractor {
 		}
 	}
 
-	private String normalizeContentType(String contentType) {
-		if (contentType == null) {
-			return null;
-		}
-		String normalized = contentType.trim().toLowerCase(Locale.ROOT);
-		int separator = normalized.indexOf(';');
-		if (separator >= 0) {
-			return normalized.substring(0, separator).trim();
-		}
-		return normalized;
-	}
 }

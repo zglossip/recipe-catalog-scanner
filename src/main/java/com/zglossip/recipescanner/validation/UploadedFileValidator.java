@@ -1,5 +1,6 @@
 package com.zglossip.recipescanner.validation;
 
+import com.zglossip.recipescanner.util.ContentTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,7 +32,7 @@ public class UploadedFileValidator {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File is empty.");
 		}
 
-		String contentType = normalizeContentType(file.getContentType());
+		String contentType = ContentTypes.normalize(file.getContentType());
 		if (contentType == null || contentType.isBlank()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Content type is required.");
 		}
@@ -46,18 +47,6 @@ public class UploadedFileValidator {
 		}
 
 		validateExtensionForContentType(contentType, extension);
-	}
-
-	private String normalizeContentType(String contentType) {
-		if (contentType == null) {
-			return null;
-		}
-		String normalized = contentType.trim().toLowerCase(Locale.ROOT);
-		int separator = normalized.indexOf(';');
-		if (separator >= 0) {
-			return normalized.substring(0, separator).trim();
-		}
-		return normalized;
 	}
 
 	private String extractExtension(String filename) {

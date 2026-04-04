@@ -1,5 +1,6 @@
 package com.zglossip.recipescanner.extract;
 
+import com.zglossip.recipescanner.util.ContentTypes;
 import net.sourceforge.tess4j.TesseractException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,7 +9,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Locale;
 
 @Component
 public class ImageOcrTextExtractor implements TextExtractor {
@@ -20,7 +20,7 @@ public class ImageOcrTextExtractor implements TextExtractor {
 
 	@Override
 	public boolean supports(MultipartFile file) {
-		String contentType = normalizeContentType(file == null ? null : file.getContentType());
+		String contentType = ContentTypes.normalize(file == null ? null : file.getContentType());
 		return contentType != null && contentType.startsWith("image/");
 	}
 
@@ -39,15 +39,4 @@ public class ImageOcrTextExtractor implements TextExtractor {
 		}
 	}
 
-	private String normalizeContentType(String contentType) {
-		if (contentType == null) {
-			return null;
-		}
-		String normalized = contentType.trim().toLowerCase(Locale.ROOT);
-		int separator = normalized.indexOf(';');
-		if (separator >= 0) {
-			return normalized.substring(0, separator).trim();
-		}
-		return normalized;
-	}
 }
