@@ -3,15 +3,20 @@ package com.zglossip.recipescanner.parse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zglossip.recipescanner.config.OllamaProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Component
 public class OllamaClient {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(OllamaClient.class);
 
 	private static final String RECIPE_SYSTEM = """
 			You are a recipe extraction assistant. Extract all recipes from OCR-scanned text and map each one to the following structure:
@@ -41,7 +46,60 @@ public class OllamaClient {
 		this.objectMapper = objectMapper;
 	}
 
+	private static final int CHUNK_SIZE = 30_000;
+	private static final int CHUNK_OVERLAP = 15_000;
+
 	public ParsedRecipesResult generateRecipes(String text) {
+		List<String> chunks = chunk(text);
+		LOGGER.info("Processing text in {} chunk(s) totalChars={}", chunks.size(), text.length());
+		List<ParsedRecipe> allRecipes = new ArrayList<>();
+		for (int i = 0; i < chunks.size(); i++) {
+			LOGGER.info("Processing chunk {}/{} chars={}", i + 1, chunks.size(), chunks.get(i).length());
+			allRecipes.addAll(generateChunk(chunks.get(i)).recipes());
+			LOGGER.info("Chunk {}/{} complete recipiesSoFar={}", i + 1, chunks.size(), allRecipes.size());
+		}
+		List<ParsedRecipe> deduped = deduplicate(allRecipes);
+		LOGGER.info("Parsing complete totalRecipes={} beforeDedup={}", deduped.size(), allRecipes.size());
+		return new ParsedRecipesResult(deduped);
+	}
+
+	private List<ParsedRecipe> deduplicate(List<ParsedRecipe> recipes) {
+		List<ParsedRecipe> deduped = new ArrayList<>();
+		for (ParsedRecipe recipe : recipes) {
+			int existingIndex = -1;
+			for (int i = 0; i < deduped.size(); i++) {
+				if (deduped.get(i).name() != null && deduped.get(i).name().equalsIgnoreCase(recipe.name())) {
+					existingIndex = i;
+					break;
+				}
+			}
+			if (existingIndex == -1) {
+				deduped.add(recipe);
+			} else if (recipeLength(recipe) > recipeLength(deduped.get(existingIndex))) {
+				deduped.set(existingIndex, recipe);
+			}
+		}
+		return deduped;
+	}
+
+	private int recipeLength(ParsedRecipe recipe) {
+		int length = recipe.name() != null ? recipe.name().length() : 0;
+		if (recipe.ingredients() != null) {
+			for (var ingredient : recipe.ingredients()) {
+				if (ingredient.name() != null) length += ingredient.name().length();
+				if (ingredient.uom() != null) length += ingredient.uom().length();
+				if (ingredient.notes() != null) length += ingredient.notes().length();
+			}
+		}
+		if (recipe.instructions() != null) {
+			for (String step : recipe.instructions()) {
+				if (step != null) length += step.length();
+			}
+		}
+		return length;
+	}
+
+	private ParsedRecipesResult generateChunk(String text) {
 		OllamaRequest request = new OllamaRequest(
 				model,
 				List.of(
@@ -61,11 +119,33 @@ public class OllamaClient {
 		if (response == null || response.message() == null) {
 			throw new IllegalStateException("Received null response from Ollama");
 		}
+		String content = response.message().content();
+		LOGGER.debug("Raw Ollama response: {}", content);
 		try {
-			return objectMapper.readValue(response.message().content(), ParsedRecipesResult.class);
+			return objectMapper.readValue(content, ParsedRecipesResult.class);
 		} catch (JsonProcessingException e) {
 			throw new IllegalStateException("Failed to parse Ollama response as JSON", e);
 		}
+	}
+
+	private List<String> chunk(String text) {
+		List<String> chunks = new ArrayList<>();
+		int start = 0;
+		while (start < text.length()) {
+			int end = Math.min(start + CHUNK_SIZE, text.length());
+			if (end < text.length()) {
+				int newline = text.lastIndexOf('\n', end);
+				if (newline > start) {
+					end = newline + 1;
+				}
+			}
+			chunks.add(text.substring(start, end));
+			if (end >= text.length()) {
+				break;
+			}
+			start = end - CHUNK_OVERLAP;
+		}
+		return chunks;
 	}
 
 	private record StringSchema(String type) {
