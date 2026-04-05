@@ -25,11 +25,17 @@ public class OllamaClient {
 			- servingAmount: the number of servings as an integer (e.g. 4).
 			- servingName: the label for a single serving. Use "serving" by default, but use a more specific term if the recipe implies one (e.g. "cookie", "slice", "piece").
 			- ingredients: a list of ingredients, each with:
-			  - name: the ingredient name (e.g. "all-purpose flour").
-			  - quantity: the numeric amount (e.g. 2.5). Omit if not specified.
-			  - uom: the unit of measure (e.g. "cups", "tsp", "oz"). Omit if not specified.
-			  - notes: any preparation or clarifying notes (e.g. "sifted", "at room temperature", "finely chopped"). Omit if not specified.
+			  - name: ONLY the core ingredient name, stripped of quantity, unit, and preparation notes (e.g. "all-purpose flour", "sweet potato", "black pepper"). Do NOT include preparation instructions or descriptors in the name.
+			  - quantity: the numeric amount (e.g. 2.5). Omit if not specified. For fractional amounts like 1/4, use the decimal equivalent (0.25).
+			  - uom: the unit of measure (e.g. "cups", "tsp", "oz", "pinch", "clove"). Omit if not specified. Informal units like "pinch" or "dash" are valid uom values.
+			  - notes: any preparation or clarifying notes separated from the ingredient name (e.g. "sifted", "at room temperature", "finely chopped", "peeled and diced", "freshly ground"). Omit if not specified.
 			- instructions: an ordered list of steps, each as a plain string.
+
+			Ingredient parsing rules:
+			- "1 large sweet potato, peeled and cut into 1/2-inch dice" → name: "sweet potato", quantity: 1, notes: "large, peeled and cut into 1/2-inch dice"
+			- "pinch of freshly ground black pepper" → name: "black pepper", uom: "pinch", notes: "freshly ground"
+			- "2 cups chicken broth" → name: "chicken broth", quantity: 2, uom: "cups"
+			- "3 cloves garlic, minced" → name: "garlic", quantity: 3, uom: "cloves", notes: "minced"
 			""";
 
 	private static final RecipesResultSchema RECIPE_SCHEMA = new RecipesResultSchema();
