@@ -1,4 +1,4 @@
-# recipe-scanner
+# Recipe Catalog Scanner
 Reads files containing recipes such as PDFs and images, and sends it to the recipe-catalog-api
 
 ## Requirements
