@@ -1,0 +1,12 @@
+.git
+.gitignore
+.gradle
+build
+.idea
+*.iml
+.vscode
+logs
+HELP.md
+README.md
+LICENSE
+gradle/wrapper/gradle-wrapper.jar
