@@ -5,6 +5,14 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+  mvc:
+    problemdetails:
+      enabled: true
 
 ocr:
   language: "eng"
+
+server:
+  error:
+    include-stacktrace: never
+    include-message: never
