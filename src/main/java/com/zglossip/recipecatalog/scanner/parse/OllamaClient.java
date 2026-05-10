@@ -126,7 +126,6 @@ public class OllamaClient {
 			throw new IllegalStateException("Received null response from Ollama");
 		}
 		String content = response.message().content();
-		LOGGER.debug("Raw Ollama response: {}", content);
 		try {
 			return objectMapper.readValue(content, ParsedRecipesResult.class);
 		} catch (JsonProcessingException e) {
@@ -197,6 +196,5 @@ public class OllamaClient {
 	private record RecipesResultSchema(String type, RecipesResultProperties properties, List<String> required) {
 		RecipesResultSchema() { this("object", new RecipesResultProperties(), List.of("recipes")); }
 	}
-
 
 }
