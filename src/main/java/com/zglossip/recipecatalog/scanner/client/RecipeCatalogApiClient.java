@@ -1,18 +1,16 @@
 package com.zglossip.recipecatalog.scanner.client;
 
-import com.zglossip.recipecatalog.scanner.config.RecipeCatalogApiProperties;
 import com.zglossip.recipecatalog.scanner.domain.Ingredient;
 import com.zglossip.recipecatalog.scanner.domain.ScannedRecipe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.time.Duration;
 import java.util.List;
 
 @Component
@@ -22,14 +20,8 @@ public class RecipeCatalogApiClient {
 
 	private final RestClient restClient;
 
-	public RecipeCatalogApiClient(RecipeCatalogApiProperties properties) {
-		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-		factory.setConnectTimeout(Duration.ofSeconds(5));
-		factory.setReadTimeout(Duration.ofSeconds(30));
-		this.restClient = RestClient.builder()
-				.baseUrl(properties.baseUrl())
-				.requestFactory(factory)
-				.build();
+	public RecipeCatalogApiClient(@Qualifier("recipeCatalogApiRestClient") RestClient restClient) {
+		this.restClient = restClient;
 	}
 
 	public Boolean send(ScannedRecipe scannedRecipe) {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zglossip.recipecatalog.scanner.config.OllamaProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -45,7 +46,7 @@ public class OllamaClient {
 	private final int numCtx;
 	private final ObjectMapper objectMapper;
 
-	public OllamaClient(RestClient restClient, OllamaProperties ollamaProperties, ObjectMapper objectMapper) {
+	public OllamaClient(@Qualifier("ollamaRestClient") RestClient restClient, OllamaProperties ollamaProperties, ObjectMapper objectMapper) {
 		this.restClient = restClient;
 		this.model = ollamaProperties.model();
 		this.numCtx = ollamaProperties.numCtx();

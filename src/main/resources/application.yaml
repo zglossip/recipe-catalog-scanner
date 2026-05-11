@@ -16,3 +16,6 @@ server:
   error:
     include-stacktrace: never
     include-message: never
+
+ollama:
+  num-ctx: 16384

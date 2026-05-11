@@ -26,7 +26,7 @@
 		<appender-ref ref="RENDERED_TEXT_FILE"/>
 	</logger>
 
-	<logger name="com.zglossip.recipecatalog.scanner.parse" level="DEBUG"/>
+	<logger name="com.zglossip.recipecatalog.scanner.parse" level="INFO"/>
 
 	<root level="INFO">
 		<appender-ref ref="CONSOLE"/>
