@@ -158,8 +158,8 @@ public class OllamaClient {
 		StringSchema() { this("string"); }
 	}
 
-	private record NumberSchema(String type) {
-		NumberSchema() { this("number"); }
+	private record NumberSchema(List<String> type) {
+		NumberSchema() { this(List.of("number", "null")); }
 	}
 
 	private record StringArraySchema(String type, StringSchema items) {
