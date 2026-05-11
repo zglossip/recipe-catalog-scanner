@@ -20,7 +20,7 @@ public class AppConfig {
 	@Bean
 	@Qualifier("ollamaRestClient")
 	public RestClient ollamaRestClient(OllamaProperties ollamaProperties) {
-		return buildRestClient(ollamaProperties.baseUrl(), Duration.ofSeconds(5), Duration.ofSeconds(120));
+		return buildRestClient(ollamaProperties.baseUrl(), Duration.ofSeconds(5), Duration.ofMinutes(120));
 	}
 
 	@Bean
