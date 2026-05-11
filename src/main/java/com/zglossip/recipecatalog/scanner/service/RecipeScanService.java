@@ -4,6 +4,8 @@ import com.zglossip.recipecatalog.scanner.api.RecipeScanResponse;
 import com.zglossip.recipecatalog.scanner.client.RecipeCatalogApiClient;
 import com.zglossip.recipecatalog.scanner.domain.ScannedRecipe;
 import com.zglossip.recipecatalog.scanner.extract.TextExtractor;
+import com.zglossip.recipecatalog.scanner.parse.OllamaClient;
+import com.zglossip.recipecatalog.scanner.parse.ParsedRecipesResult;
 import com.zglossip.recipecatalog.scanner.parse.RecipeParser;
 
 import org.slf4j.Logger;
@@ -20,15 +22,18 @@ public class RecipeScanService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RecipeScanService.class);
 	private final List<TextExtractor> textExtractors;
 	private final RecipeParser recipeParser;
+	private final OllamaClient ollamaClient;
 	private final RecipeCatalogApiClient foodHistoryApiClient;
 
 	public RecipeScanService(
 			List<TextExtractor> textExtractors,
 			RecipeParser recipeParser,
+			OllamaClient ollamaClient,
 			RecipeCatalogApiClient foodHistoryApiClient
 	) {
 		this.textExtractors = textExtractors;
 		this.recipeParser = recipeParser;
+		this.ollamaClient = ollamaClient;
 		this.foodHistoryApiClient = foodHistoryApiClient;
 	}
 
@@ -65,6 +70,45 @@ public class RecipeScanService {
 			);
 		}
 		return new RecipeScanResponse(recipeParser.parse(text), text, "Recipe scanned successfully.");
+	}
+
+	public String ocr(MultipartFile file) {
+		LOGGER.info("OCR-only scan file name={} contentType={} sizeBytes={}",
+				file.getOriginalFilename(),
+				file.getContentType(),
+				file.getSize());
+
+		TextExtractor extractor = textExtractors.stream()
+				.filter(candidate -> candidate.supports(file))
+				.findFirst()
+				.orElse(null);
+
+		if (extractor == null) {
+			LOGGER.warn("Unsupported file type contentType={}", file.getContentType());
+			throw new ResponseStatusException(
+					HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+					"Unsupported file type."
+			);
+		}
+
+		String text = extractor.extract(file);
+
+		if (text == null || text.isBlank()) {
+			LOGGER.warn("OCR produced no text filename={} contentType={}",
+					file.getOriginalFilename(),
+					file.getContentType());
+			throw new ResponseStatusException(
+					HttpStatus.UNPROCESSABLE_ENTITY,
+					"No text could be extracted from the file."
+			);
+		}
+
+		return text;
+	}
+
+	public ParsedRecipesResult parseText(String text) {
+		LOGGER.info("Parsing text directly chars={}", text.length());
+		return ollamaClient.generateRecipes(text);
 	}
 
 	public Boolean submit(List<ScannedRecipe> recipes) {

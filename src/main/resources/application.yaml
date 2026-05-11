@@ -1,6 +1,6 @@
 spring:
   application:
-    name: recipeCatalogScanner
+    name: recipe-catalog-scanner
   servlet:
     multipart:
       max-file-size: 50MB

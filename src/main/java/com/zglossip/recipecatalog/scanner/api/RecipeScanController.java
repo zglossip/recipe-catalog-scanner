@@ -1,6 +1,7 @@
 package com.zglossip.recipecatalog.scanner.api;
 
 import com.zglossip.recipecatalog.scanner.domain.ScannedRecipe;
+import com.zglossip.recipecatalog.scanner.parse.ParsedRecipesResult;
 import com.zglossip.recipecatalog.scanner.service.RecipeScanService;
 import com.zglossip.recipecatalog.scanner.validation.UploadedFileValidator;
 import org.springframework.http.MediaType;
@@ -32,6 +33,17 @@ public class RecipeScanController {
 	public ResponseEntity<RecipeScanResponse> scan(@RequestPart("file") MultipartFile file) {
 		uploadedFileValidator.validateForScan(file);
 		return ResponseEntity.ok(recipeScanService.scan(file));
+	}
+
+	@PostMapping(path = "/scan/ocr", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<OcrResponse> scanOcr(@RequestPart("file") MultipartFile file) {
+		uploadedFileValidator.validateForScan(file);
+		return ResponseEntity.ok(new OcrResponse(recipeScanService.ocr(file)));
+	}
+
+	@PostMapping(path = "/scan/text", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ParsedRecipesResult> scanText(@RequestBody ScanTextRequest request) {
+		return ResponseEntity.ok(recipeScanService.parseText(request.text()));
 	}
 
 	@PostMapping(path = "/submit", consumes = MediaType.APPLICATION_JSON_VALUE)
