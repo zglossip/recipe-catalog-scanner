@@ -60,10 +60,14 @@ public class RecipeCatalogApiClient {
 					scannedRecipe.recipe().courseTypes(),
 					scannedRecipe.recipe().cuisineTypes(),
 					scannedRecipe.recipe().tags(),
-					scannedRecipe.recipe().servingAmount(),
+					// TODO: API and DB should be updated to accept nullable servingAmount (Phase 2.5 / migration framework needed first)
+					scannedRecipe.recipe().servingAmount() != null ? scannedRecipe.recipe().servingAmount() : 0,
 					scannedRecipe.recipe().servingName(),
 					scannedRecipe.recipe().source(),
-					scannedRecipe.ingredients(),
+					scannedRecipe.ingredients().stream()
+							// TODO: API and DB should be updated to accept nullable quantity (Phase 2.5 / migration framework needed first)
+							.map(i -> i.quantity() != null ? i : new Ingredient(i.name(), 0.0, i.uom(), i.notes()))
+							.toList(),
 					scannedRecipe.instructions()
 			);
 		}
