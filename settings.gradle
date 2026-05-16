@@ -1,3 +1,1 @@
 rootProject.name = 'recipe-catalog-scanner'
-
-include 'recipe-scanner-app'
